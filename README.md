@@ -48,10 +48,11 @@ The output results will be stored in the `result` folder.
 ## Visualize result
 
 ### Telemetry Analysis
+
 Mantis enables accurate prediction of HPC telemetry streams. Using `vizro` and `plotly`, Mantis provides interactive charts for detailed analysis, as shown by the successful predictions in the example below. The chart allows you toquickly inspect each telemetry on any compute nodes.
 
 ```
-python visualization/monitor_page.py --no_pCache -threshold_per 0.9999 -load_model_path results/may_tsmixer_03-13--13-35-29/best_03-13--13-35-29.pt -dtask anomaly -dataset may -save_subdir tsmixer -model tsmixer --deterministic -slide_win 10 -graph_skip_conn 0.15 -edge_thr 1e-10 -topk 66 -slide_stride 1 -batch 32 -epoch 100 -early_stop_win 100 -comment "" -random_seed 5 -decay 0 -dim 64 -out_layer_num 3 -out_layer_inter_dim 128 -scaler minmax 
+python visualization/monitor_page.py
 ```
 <div align="center">
   <img src="docs/example1.png" alt="Telemetry Analysis Example" width="800">
@@ -76,6 +77,7 @@ python visualization/core_network.py
 
 
 # Model Architecture Justification(Ablation study)
+
 The Mantis Fundamental Model (FM) employs a two-component architecture designed for High-Performance Computing (HPC) telemetry forecasting. These components are:
 
 1. **Time-Mixing Module:** An MLP module focused on capturing temporal dependencies and patterns within individual telemetry time series.
@@ -143,19 +145,6 @@ Performance was evaluated using the Root Mean Squared Error (RMSE) on the JLab a
       <th>mem: MemTotal bytes</th>
     </tr>
     <tr>
-      <td>FM-NM</td>
-      <td>3.30E-02</td>
-      <td>1.60E-02</td>
-      <td>1.30E-02</td>
-      <td>1.30E-02</td>
-      <td>5.70E-03</td>
-      <td>3.10E-05</td>
-      <td>2.40E-05</td>
-      <td>2.40E-05</td>
-      <td>2.00E-05</td>
-      <td>2.20E-05</td>
-    </tr>
-    <tr>
       <td>FM-TM</td>
       <td>4.40E-02</td>
       <td>3.10E-02</td>
@@ -167,6 +156,19 @@ Performance was evaluated using the Root Mean Squared Error (RMSE) on the JLab a
       <td>2.70E-02</td>
       <td>6.20E-02</td>
       <td>6.20E-02</td>
+    </tr>
+    <tr>
+      <td>FM-NM</td>
+      <td>3.30E-02</td>
+      <td>1.60E-02</td>
+      <td>1.30E-02</td>
+      <td>1.30E-02</td>
+      <td>5.70E-03</td>
+      <td>3.10E-05</td>
+      <td>2.40E-05</td>
+      <td>2.40E-05</td>
+      <td>2.00E-05</td>
+      <td>2.20E-05</td>
     </tr>
     <tr>
       <td>FM</td>
@@ -210,19 +212,6 @@ Performance was evaluated using the Root Mean Squared Error (RMSE) on the JLab a
       <th>p0_temp_min</th>
     </tr>
     <tr>
-      <td>FM-NM</td>
-      <td>6.30E-01</td>
-      <td>5.50E-01</td>
-      <td>4.90E-01</td>
-      <td>5.50E-01</td>
-      <td>5.10E-01</td>
-      <td>2.10E-01</td>
-      <td>2.80E-01</td>
-      <td>2.50E-01</td>
-      <td>1.10E-03</td>
-      <td>3.10E-04</td>
-    </tr>
-    <tr>
       <td>FM-TM</td>
       <td>8.10E-02</td>
       <td>8.70E-02</td>
@@ -234,6 +223,19 @@ Performance was evaluated using the Root Mean Squared Error (RMSE) on the JLab a
       <td>6.20E-02</td>
       <td>5.40E-02</td>
       <td>5.40E-02</td>
+    </tr>
+    <tr>
+      <td>FM-NM</td>
+      <td>6.30E-01</td>
+      <td>5.50E-01</td>
+      <td>4.90E-01</td>
+      <td>5.50E-01</td>
+      <td>5.10E-01</td>
+      <td>2.10E-01</td>
+      <td>2.80E-01</td>
+      <td>2.50E-01</td>
+      <td>1.10E-03</td>
+      <td>3.10E-04</td>
     </tr>
     <tr>
       <td>FM</td>
@@ -253,6 +255,7 @@ Performance was evaluated using the Root Mean Squared Error (RMSE) on the JLab a
 
 
 # TRG Hyperparameter ϵ Analysis
+
 The TRG construction algorithm utilizes a hyperparameter, ϵ, to regulate the magnitude of perturbation during its process. For the Mantis implementation, a value of ϵ=0.01 was selected.
 
 To evaluate the robustness of the resulting graph structure to this choice, we performed a sensitivity analysis. TRGs were generated using various ϵ values ranging from 0.001 to 0.1. We then calculated the similarity between each resulting graph and the baseline graph generated using the chosen ϵ=0.01. The results for the JLab and OLCF datasets are presented in the following table.
