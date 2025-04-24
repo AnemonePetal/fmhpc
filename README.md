@@ -116,6 +116,7 @@ Performance was evaluated using the Root Mean Squared Error (RMSE) on the JLab a
 </table>
 
 - **Detailed Performance:** As shown in the following tables, the FM consistently outperforms others for the 5 highest- and 5 lowest-RMSE telemetry metrics per dataset.
+
 <table>
   <thead>
     <tr>
