@@ -21,8 +21,7 @@ draft.py
 quicknote_script.md
 # *.png
 entrypoint/
-models/
-util/
-scripts/
-crazy_shells/
-visualization/
+# models/
+# util/
+# scripts/
+# visualization/

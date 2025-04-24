@@ -1,0 +1,1 @@
+OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 python main.py -model fm -threshold_per 0.9999 --no_pCache --attack -dtask anomaly -dataset olcfcutsec -save_subdir $attack_type  --deterministic -slide_win 10 -slide_stride 1 -batch 1024 -epoch 60 -early_stop_win 100  -random_seed 5 -dim 64 -out_layer_num 3 -out_layer_inter_dim 128 -scaler minmax -device cuda:0
