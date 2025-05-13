@@ -1,16 +1,14 @@
 import pandas as pd
 import numpy as np
-from util.data_artifact import Artifact
 from util.normalization import scaler_wrapper
-from util.time_range import first_hours, last_hours
+from util.time_range import last_hours
 from util.inject_anomalies import InjectAnomalies
 import csv 
 import os
 import glob
-import multiprocessing as mp
 import json5
 from sklearn.model_selection import train_test_split
-from util.net_prep_old import get_feature_map, store_featurelist
+from util.feat_prep import get_feature_map, store_featurelist
 class Data:
     def __init__(self, path,filter=None,args=None):
         self.path = path
@@ -22,11 +20,6 @@ class Data:
             self.df = self.read_data() 
         
     def read_data(self, fillna=True):
-        if hasattr(self.args, 'model') and (self.args.model in ['tsmixer3', 'tsmixer4', 'tsmixer5']) and hasattr(self.args, 'job_log_path'):
-            new_path = self.path.replace('.parquet','_with_job.parquet')
-            if os.path.exists(new_path):
-                self.path = new_path
-
         if self.path.split(".")[-1] == "csv":
             df_joined = (
                 pd.read_csv(
@@ -66,7 +59,6 @@ class Data:
                 df_joined.loc[df_joined['label']==0, 'GPU'] = -1
             else:
                 print('GPU error ID appears when the record is normal!')
-        # parse timestamp
         if pd.api.types.is_datetime64_any_dtype(df_joined['timestamp']):
             pass
         elif pd.api.types.is_string_dtype(df_joined['timestamp']):
@@ -99,14 +91,10 @@ class Data:
             df_joined = filter_df(df_joined, self.filter)
         df_joined= self.remove_original_index(df_joined)
         df_joined = df_joined.reset_index(drop=True)
-        # check whether contains Nan
         nan_columns = df_joined.columns[df_joined.isna().any()].tolist()
         if len(nan_columns)>0:
-            # print('[WARN]: Dataset contains Nan, please check the following columns:')
-            # print('[Nan columns]:',nan_columns)
             if fillna:
-                # print('[WARN]: Nan in Dataset will be filled with 0.')
-                df_joined = df_joined.fillna(0) # fill nan with 0
+                df_joined = df_joined.fillna(0)
         
         return df_joined
     
@@ -128,7 +116,7 @@ class Data:
 
 def make_artifact2(df, time_ranges,farmnodes='random',num_faramnodes=2,feature='random',feature_map=None,inject_num=5,attack_type='spikes',logpath=None,skip_constant=True):
     df['fine_label']=0
-    np.random.seed() # set seed to random
+    np.random.seed()
     verbose = True
     feature_list = []
     farmnodes_list = []
@@ -136,7 +124,7 @@ def make_artifact2(df, time_ranges,farmnodes='random',num_faramnodes=2,feature='
     all_instances_temp = df['instance'].unique().tolist()
     feat_counter = inject_num
     df['anomaly_source'] = None
-    while feat_counter >0: # In one iteration, inject anomalies for one feature on multiple farmnodes
+    while feat_counter >0:
         skip_cur_feat_flag = False
         feat_counter -= 1
         if  fmp_temp==None or len(fmp_temp)==0:
@@ -166,7 +154,7 @@ def make_artifact2(df, time_ranges,farmnodes='random',num_faramnodes=2,feature='
         while num_faramnodes_counter >0 and len(cur_instances_temp)>0 and not skip_cur_feat_flag:
             num_faramnodes_counter -= 1
             farmnodes = np.random.choice(cur_instances_temp,1,replace=False).tolist()
-            cur_instances_temp = list(set(cur_instances_temp)-set(farmnodes)) # without duplicate
+            cur_instances_temp = list(set(cur_instances_temp)-set(farmnodes))
             mask = get_mask_by_time_range(df, time_ranges,farmnodes=farmnodes[0])
             if df.loc[mask,feature].unique().shape[0]==1 and skip_constant==True:
                 if verbose: print('[Warning] Inject anomaly {} on {}: Constant Feature'.format(feature,farmnodes[0]))
@@ -179,18 +167,18 @@ def make_artifact2(df, time_ranges,farmnodes='random',num_faramnodes=2,feature='
                                     verbose=False, 
                                     max_window_size=128, 
                                     min_window_size=8,
-                                    noise_dist='exp') #SET norm or exp  
+                                    noise_dist='exp')
                 data_std = max(np.std(df.loc[:,feature].values), 0.01)
                 T_with_anomaly, anomaly_sizes, anomaly_labels = anomalyObj.inject_anomalies(df.loc[mask,feature].values.T,
                                                                                 scale=6*data_std, 
-                                                                                anomaly_type=attack_type, #SET spikes, contextual, flip, speedup, noise, cutoff, scale, wander, average.
+                                                                                anomaly_type=attack_type,
                                                                                 random_parameters=False,
                                                                                 anomaly_size_type='mae',
                                                                                 max_anomaly_length=4,
                                                                                 constant_type='quantile', 
                                                                                 speed=6,
                                                                                 amplitude_scaling= 2)
-                if anomaly_labels.sum()>=(df.loc[mask,feature].shape[0]//20) and df.loc[mask,feature].shape[0]>10: # at least 10 anomalies
+                if anomaly_labels.sum()>=(df.loc[mask,feature].shape[0]//20) and df.loc[mask,feature].shape[0]>10:
                     success_inject = True
                 else:
                     inject_trial_counter +=1
@@ -222,7 +210,7 @@ def make_artifact2(df, time_ranges,farmnodes='random',num_faramnodes=2,feature='
                 df.loc[mask,'fine_label'] = df.loc[mask,'label'].values | anomaly_labels 
                 df.loc[mask,'label'] = 1 
                 df.loc[mask,'anomaly_source'] = feature
-            else: # speedup would make the shape not aligned, repeat T_with_anomaly to match the shape of df.loc[mask,feature]
+            else:
                 T_with_anomaly = np.tile(T_with_anomaly, df.loc[mask,feature].shape[0]//T_with_anomaly.shape[0]+1)[:df.loc[mask,feature].shape[0]]
                 anomaly_labels = np.tile(anomaly_labels, df.loc[mask,feature].shape[0]//anomaly_labels.shape[0]+1)[:df.loc[mask,feature].shape[0]]
                 df.loc[mask,feature] = T_with_anomaly
@@ -233,7 +221,6 @@ def make_artifact2(df, time_ranges,farmnodes='random',num_faramnodes=2,feature='
         if anomaly_part['instance'].dropna().nunique()!= num_faramnodes:
             raise ValueError('[Error] anomaly injector injects farmnodes less than {} for feature {}.'.format(num_faramnodes,feature))
 
-    # duplicated check
     anomaly_part = df[df['label']==1]
     if len(anomaly_part['anomaly_source'].dropna().unique())!= inject_num:
         real_inject_feat_num=len(df['anomaly_source'].dropna().unique())
@@ -243,8 +230,8 @@ def make_artifact2(df, time_ranges,farmnodes='random',num_faramnodes=2,feature='
         print(real_farmnodes_perfeat_list_debug.astype('string').rename('num_instance').to_markdown())
         print('[Error] anomaly injector injects farmnodes less than {}.'.format(num_faramnodes))
     
-    np.random.seed(5) # set seed back to 5
-    if logpath==None:         # log attack time range and feature to file
+    np.random.seed(5)
+    if logpath==None:
         logpath = './attack_time_range.csv'
     with open(logpath, 'w', newline='') as csvfile:
         writer = csv.writer(csvfile)
@@ -268,7 +255,6 @@ def set_val_by_time_range(df, time_ranges, column='label',val=1, farmnodes=None)
             mask = (df['timestamp'] >= start_time) & (df['timestamp'] <= end_time)
         if farmnodes!=None:
             mask = mask & (df['instance'].isin(farmnodes))
-        # Get the rows that fall within the current range
         if isinstance(val, list):
             df.loc[mask,column] = df.loc[mask,column].apply(lambda x: val)
         elif isinstance(val, int) or isinstance(val, float) or isinstance(val, str):
@@ -276,9 +262,7 @@ def set_val_by_time_range(df, time_ranges, column='label',val=1, farmnodes=None)
     return df
 
 def slice_df_by_time_range(df, time_ranges,timestamp_col='timestamp'): 
-    # Create an empty dataframe to hold the sliced data
     sliced_df = pd.DataFrame()
-    # Loop over each timestamp range
     for start_time, end_time in time_ranges:
         if start_time > end_time:
             raise ValueError('Start time must be less than end time')
@@ -288,11 +272,8 @@ def slice_df_by_time_range(df, time_ranges,timestamp_col='timestamp'):
             mask = (df[timestamp_col] >= start_time)
         else:
             mask = (df[timestamp_col] >= start_time) & (df[timestamp_col] <= end_time)
-        # Get the rows that fall within the current range
         df_range = df.loc[mask]
-        # Append the rows to the sliced dataframe
         sliced_df = pd.concat([sliced_df, df_range])
-        # print Nan columns
         nan_columns = sliced_df.columns[sliced_df.isna().any()].tolist()
     sliced_df = sliced_df.reset_index(drop=True)
     return sliced_df
@@ -321,12 +302,9 @@ def filter_df(df, filter):
         if key not in df.columns:
             print("[!] No column: " + key)
             return pd.DataFrame()
-        # check if params[key] is a list
         if isinstance(filter[key], list):
             df = df[df[key].isin(filter[key])]
-        # check if params[key] is a string
         if isinstance(filter[key], str):
-            # check if params[key] is a regex expression
             if filter[key].startswith('/') and filter[key].endswith('.*/'):
                 df = df[df[key].str.startswith(filter[key][1:-3])]
             else:
@@ -347,9 +325,9 @@ def build_attack(test, args):
         skip_constant = True
         if args.dataset =='jlab':
             inject_num = 5
-            cpu_feature_map = args.features[:8] # cpu feature
-            mem_feature_map = args.features[8:55] # mem feature
-            disk_feature_map = args.features[55:] # disk feature
+            cpu_feature_map = args.features[:8]
+            mem_feature_map = args.features[8:55]
+            disk_feature_map = args.features[55:]
             if args.save_subdir.endswith('cpu'):
                 select_feature_map=cpu_feature_map
             elif args.save_subdir.endswith('mem'):
@@ -426,7 +404,6 @@ class Dataset:
             data_args = json5.load(json_file)
             for key in data_args:
                 if key in args.__dict__ and (key == 'test_file' or key=='whole_file'):
-                    # print(f"[WARN]: {key}:{getattr(args,key)} already exists in args, skip loading from data_config.json")
                     pass
                 else:
                     setattr(args, key, data_args[key])
@@ -453,29 +430,28 @@ class Dataset:
 
     def load_data(self, args):
         dataset_path = args.paths['dataset']
-        # check if dataset_path is a folder
         if hasattr(args, 'whole_file'):
             data = Data(dataset_path+'/'+args.whole_file, filter=args.data_filter, args=args)
 
             if hasattr(args, 'attack_time_ranges') and hasattr(args, 'train_time_ranges') and hasattr(args, 'test_time_ranges') and hasattr(args, 'val_time_ranges'):
-                data.set_abnormal(args.attack_time_ranges) # set abnormal time range
+                data.set_abnormal(args.attack_time_ranges)
                 train = data.by_time_range(args.train_time_ranges)
                 test = data.by_time_range(args.test_time_ranges)
                 val = data.by_time_range(args.val_time_ranges)
-                del data # delete original data to save memory
+                del data
                 return train, test, val
 
             elif hasattr(args, 'train_time_ranges') and hasattr(args, 'test_time_ranges') and hasattr(args, 'val_time_ranges'):
                 train = data.by_time_range(args.train_time_ranges)
                 test = data.by_time_range(args.test_time_ranges)
                 val = data.by_time_range(args.val_time_ranges)
-                del data # delete original data to save memory
+                del data
                 return train, test, val
 
             elif hasattr(args, 'train_ratio') and hasattr(args, 'test_ratio') and hasattr(args, 'val_ratio'):
                 remain_df, test = train_test_split(data.df, test_size=args.test_ratio, shuffle=False)
                 train, val = train_test_split(remain_df, test_size=args.val_ratio/(args.train_ratio + args.val_ratio), shuffle=False)
-                del data # delete original data to save memory
+                del data
                 return train, test, val
 
         elif hasattr(args, 'train_file') and hasattr(args, 'test_file'):

@@ -170,6 +170,7 @@ dependencies:
   - python=3.8.16=he550d4f_1_cpython
   - python-flatbuffers=2.0=pyhd3eb1b0_0
   - python_abi=3.8=3_cp38
+  - pygraphviz
   - pytorch=1.13.1=py3.8_cuda11.6_cudnn8.3.2_0
   - pytorch-cuda=11.6=h867d48c_1
   - pytorch-mutex=1.0=cuda
@@ -316,6 +317,7 @@ dependencies:
       - stack-data==0.6.2
       - statsmodels==0.14.0
       - stumpy==1.12.0
+      - tabulate
       - tblib==3.0.0
       - tenacity==8.2.2
       - texttable==1.6.7
@@ -334,4 +336,3 @@ dependencies:
       - wcwidth==0.2.6
       - werkzeug==3.0.1
       - zict==3.0.0
-prefix: /home/ylu21/miniconda3/envs/fmhpc

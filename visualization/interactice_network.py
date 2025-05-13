@@ -120,4 +120,4 @@ fig = go.Figure(data=[edge_trace, node_trace],
                 ))
 
 fig.show()
-# fig.write_html("network_3d_visualization.html")
+fig.write_html("network_3d_visualization.html")

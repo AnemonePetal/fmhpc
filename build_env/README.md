@@ -37,7 +37,11 @@ int_classes = int
 string_classes = str
 ```
 
-## How to run
-```bash
-./didact/workflows/run.sh
+### Prepare environment for Prodigy
 ```
+conda env create --file ./build_env/env_vae.yml
+```
+
+
+If you run into any problems, refer to the guidance in the Prodigy [repository](https://github.com/peaclab/Prodigy).
+

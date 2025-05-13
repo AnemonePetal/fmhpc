@@ -2,8 +2,6 @@ import argparse
 import re
 import json
 import os
-import pandas as pd
-import json5
 
 def parse():
         parser = argparse.ArgumentParser()

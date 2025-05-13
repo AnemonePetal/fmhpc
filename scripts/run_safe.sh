@@ -1,0 +1,2 @@
+echo "Running model: fm"
+python main.py --no_pCache -load_model_path results/jlab_fm_03-13--13-35-29/best_03-13--13-35-29.pt -dataset jlab -save_subdir fm -model fm --deterministic -batch 32 -epoch 100 -dataloader_num_workers 0
