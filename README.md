@@ -57,6 +57,7 @@ python visualization/monitor_page.py
 <div align="center">
   <img src="docs/example1.png" alt="Telemetry Analysis Example" width="800">
 </div>
+<p align="center">Figure 1: Telemetry Analysis</p>
 
 ### Telemetry Relation Graph (TRG)
 Mantis enables interpretation of telemetry relationships with TRGs. With the help of `plotly`, Mantis provides interactive 3d network charts to visualize TRGs.
@@ -66,6 +67,7 @@ python visualization/interactice_network.py
 <div align="center">
   <img src="docs/example2.png" alt="Telemetry Relation Graph Example" width="800">
 </div>
+<p align="center">Figure 2: Telemetry Relation Graph</p>
 
 With the help of `networkx`, Mantis could further reveal the core structures of the complex TRGs.
 ```
@@ -74,6 +76,7 @@ python visualization/core_network.py
 <div align="center">
   <img src="docs/example3.png" alt="Telemetry Relation Graph Example" width="600">
 </div>
+<p align="center">Figure 3: Telemetry Relation Graph (after pruning)</p>
 
 
 # Model Architecture Justification(Ablation study)
