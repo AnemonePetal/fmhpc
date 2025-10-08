@@ -81,23 +81,23 @@ python visualization/core_network.py
 
 # Model Architecture Justification(Ablation study)
 
-The Mantis Fundamental Model (FM) employs a two-component architecture designed for High-Performance Computing (HPC) telemetry forecasting. These components are:
+The Mantis Model (SysMixer) employs a two-component architecture designed for High-Performance Computing (HPC) telemetry forecasting. These components are:
 
 1. **Time-Mixing Module:** An MLP module focused on capturing temporal dependencies and patterns within individual telemetry time series.
 2. **Feature-Mixing Module:** An MLP module designed to model the dependencies _across_ different telemetry variables originating from the same compute node.
 
-While compute nodes in HPC clusters exhibit interdependence due to shared resources (e.g., network, parallel file systems), potentially motivating a third component for modeling cross-node relationships (a "node-mixing" module), our analysis indicates that the two-component FM architecture achieves superior performance.
+While compute nodes in HPC clusters exhibit interdependence due to shared resources (e.g., network, parallel file systems), potentially motivating a third component for modeling cross-node relationships (a "node-mixing" module), our analysis indicates that the two-component SysMixer architecture achieves superior performance.
 
-To justify this design choice, we compared the standard FM against two variants:
+To justify this design choice, we compared the standard SysMixer against two variants:
 
-- **FM-TM (Time-Mixing Only):** A baseline model containing only the time-mixing module, thus capturing only intra-telemetry temporal dynamics.
-- **FM-NM (Node-Mixing Included):** A more complex model incorporating time-mixing, feature-mixing, and an additional node-mixing module to explicitly model cross-node interactions.
+- **SysMixer-TM (Time-Mixing Only):** A baseline model containing only the time-mixing module, thus capturing only intra-telemetry temporal dynamics.
+- **SysMixer-NM (Node-Mixing Included):** A more complex model incorporating time-mixing, feature-mixing, and an additional node-mixing module to explicitly model cross-node interactions.
 
 Performance was evaluated using the Root Mean Squared Error (RMSE) on the JLab and OLCF datasets.
 
 **Performance Comparison:**
 
-- **Overall Performance:** As shown in the following table, the  FM achieves the lowest average RMSE across all telemetries on both datasets.
+- **Overall Performance:** As shown in the following table, the  SysMixer achieves the lowest average RMSE across all telemetries on both datasets.
     
 <table>
     <thead>
@@ -109,18 +109,18 @@ Performance was evaluated using the Root Mean Squared Error (RMSE) on the JLab a
     </thead>
     <tbody>
         <tr>
-            <td>FM-TM</td> <td>4.6e-2</td> <td>4.6e-2</td>
+            <td>SysMixer-TM</td> <td>4.6e-2</td> <td>4.6e-2</td>
            </tr>
            <tr>
-            <td>FM-NM</td> <td>2.0e-3</td> <td>4.4e-1</td>
+            <td>SysMixer-NM</td> <td>2.0e-3</td> <td>4.4e-1</td>
            </tr>
            <tr>
-            <td>FM</td> <td>1.9e-3</td> <td>2.3e-2</td>
+            <td>SysMixer</td> <td>1.9e-3</td> <td>2.3e-2</td>
            </tr>
     </tbody>
 </table>
 
-- **Detailed Performance:** As shown in the following tables, the FM consistently outperforms others for the 5 highest- and 5 lowest-RMSE telemetry metrics per dataset.
+- **Detailed Performance:** As shown in the following tables, the SysMixer consistently outperforms others for the 5 highest- and 5 lowest-RMSE telemetry metrics per dataset.
 
 <table>
   <thead>
@@ -148,7 +148,7 @@ Performance was evaluated using the Root Mean Squared Error (RMSE) on the JLab a
       <th>mem: MemTotal bytes</th>
     </tr>
     <tr>
-      <td>FM-TM</td>
+      <td>SysMixer-TM</td>
       <td>4.40E-02</td>
       <td>3.10E-02</td>
       <td>1.60E-01</td>
@@ -161,7 +161,7 @@ Performance was evaluated using the Root Mean Squared Error (RMSE) on the JLab a
       <td>6.20E-02</td>
     </tr>
     <tr>
-      <td>FM-NM</td>
+      <td>SysMixer-NM</td>
       <td>3.30E-02</td>
       <td>1.60E-02</td>
       <td>1.30E-02</td>
@@ -174,7 +174,7 @@ Performance was evaluated using the Root Mean Squared Error (RMSE) on the JLab a
       <td>2.20E-05</td>
     </tr>
     <tr>
-      <td>FM</td>
+      <td>SysMixer</td>
       <td>3.20E-02</td>
       <td>1.50E-02</td>
       <td>1.20E-02</td>
@@ -215,7 +215,7 @@ Performance was evaluated using the Root Mean Squared Error (RMSE) on the JLab a
       <th>p0_temp_min</th>
     </tr>
     <tr>
-      <td>FM-TM</td>
+      <td>SysMixer-TM</td>
       <td>8.10E-02</td>
       <td>8.70E-02</td>
       <td>8.30E-02</td>
@@ -228,7 +228,7 @@ Performance was evaluated using the Root Mean Squared Error (RMSE) on the JLab a
       <td>5.40E-02</td>
     </tr>
     <tr>
-      <td>FM-NM</td>
+      <td>SysMixer-NM</td>
       <td>6.30E-01</td>
       <td>5.50E-01</td>
       <td>4.90E-01</td>
@@ -241,7 +241,7 @@ Performance was evaluated using the Root Mean Squared Error (RMSE) on the JLab a
       <td>3.10E-04</td>
     </tr>
     <tr>
-      <td>FM</td>
+      <td>SysMixer</td>
       <td>4.50E-02</td>
       <td>4.50E-02</td>
       <td>4.50E-02</td>

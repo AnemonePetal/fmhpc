@@ -20,13 +20,13 @@ import pandas as pd
 
 def rename_model_name(model_name):
     if model_name == 'fm':
-        model_name = 'FM'
+        model_name = 'SysMixer'
     elif model_name == 'gat':
         model_name = 'GAT'
     elif model_name == 'gdn':
         model_name = 'GDN'
     elif model_name == 'fmnm':
-        model_name = 'FM-NM'
+        model_name = 'SysMixer-NM'
     return model_name
 
 
@@ -122,7 +122,7 @@ if __name__=='__main__':
             prepare_env(args)
             data = Dataset(args)
             model = model_selector(args,data)
-            print(f"-----------------Process: {model_name} ({dataset})-----------------")
+            print(f"-----------------Process: {rename_model_name(model_name)} ({dataset})-----------------")
             model_size = summary_model(model.model, data, model_name, print_total_params_only=True)
             rmse = get_rmse(metric='rmse', savepath=args.paths['score_dir']+'regression/', inverse_scaler=None)
             model_size_list.append(model_size)

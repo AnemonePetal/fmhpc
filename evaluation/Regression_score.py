@@ -31,15 +31,15 @@ def add_blank_newline_labels(ax,num_newline=1):
 
 def rename_model_name(model_name):
     if model_name == 'fm':
-        model_name = 'FM'
+        model_name = 'SysMixer'
     elif model_name == 'gat':
         model_name = 'GAT'
     elif model_name == 'gdn':
         model_name = 'GDN'
     elif model_name == 'fmtm':
-        model_name = 'Time-Mixing-only'
+        model_name = 'SysMixer-TM'
     elif model_name == 'fmnm':
-        model_name = 'FM-NM'
+        model_name = 'SysMixer-NM'
     return model_name
 
 def retrieve_old_feature_score(metric='mse',verbose=False,inverse_scaler=None,savepath='./'):
@@ -103,8 +103,8 @@ def process_data(rename_model_name, retrieve_old_feature_score, args, dataset_li
         jlab_score_df['features'] = jlab_score_df['features'].str.replace(r'^(?!mem:|disk:)', 'cpu: ', regex=True)
         jlab_score_df['features'] = jlab_score_df['features'].str.replace(r'_', ' ')
 
-        if 'FM' in jlab_score_df.columns:
-            ref_model_rmse = jlab_score_df.set_index('features')['FM']
+        if 'SysMixer' in jlab_score_df.columns:
+            ref_model_rmse = jlab_score_df.set_index('features')['SysMixer']
         else:
              ref_model_rmse = jlab_score_df.set_index('features').mean(axis=1)
 
@@ -129,8 +129,8 @@ def process_data(rename_model_name, retrieve_old_feature_score, args, dataset_li
     if not olcf_socre_df.empty:
         olcf_socre_df['features'] = olcf_socre_df['features'].str.replace(r'_(?!.*_)(\w+)', r'_\1', regex=True)
 
-        if 'FM' in olcf_socre_df.columns:
-             ref_model_rmse = olcf_socre_df.set_index('features')['FM']
+        if 'SysMixer' in olcf_socre_df.columns:
+             ref_model_rmse = olcf_socre_df.set_index('features')['SysMixer']
         else:
              ref_model_rmse = olcf_socre_df.set_index('features').mean(axis=1)
 

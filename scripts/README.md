@@ -72,7 +72,7 @@ The following commands show how to train models on JLab. To train models using t
 ```
 conda activate fmhpc
 
-# Train FM model
+# Train SysMixer model
 OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 python main.py --no_pCache -dataset jlab -save_subdir fm -model fm --deterministic -batch 32 -epoch 100
 
 # Train GDN model
@@ -90,7 +90,7 @@ The following scripts generate results from trained models.
 - Synthetic Anomalies
 ```
 conda activate fmhpc
-# run FM model
+# run SysMixer model
 ./scripts/synthetic_anomaly_detection.sh
 
 # run GAT model
@@ -106,7 +106,7 @@ python scripts/merge_synthetic_anomaly_result.py
 - OLCF XID GPU Anomalies
 ```
 conda activate fmhpc
-# run FM model
+# run SysMixer model
 OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 python scripts/olcf_xid_workflow_bytol.py
 # run GAT model
 OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 python scripts/baseline/olcf_xid_workflow_bytol_gat.py
